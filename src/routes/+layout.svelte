@@ -123,7 +123,7 @@
 		if (backendConfig) {
 			// Save Backend Status to Store
 			await config.set(backendConfig);
-			await WEBUI_NAME.set(backendConfig.name);
+			await WEBUI_NAME.set(Finance AI);
 
 			if ($config) {
 				setupSocket();
