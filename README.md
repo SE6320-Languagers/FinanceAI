@@ -1,7 +1,7 @@
 # FinanceAI
 Let's learn to finance with our friend LLM
 
-#Description of LLM
+# Description of LLM
 Uses open-webui as our web framework base
 
 Users will be able to easily prompt the online GUI to interact with the model, which gives quick, relevant, and easy-to-understand solutions to their questions. Users will be able to ask for feedback on budgets, loans, long-term investments, and other topics related to personal finance.
