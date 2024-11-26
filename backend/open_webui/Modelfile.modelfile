@@ -1,12 +1,13 @@
-FROM llama2:latest
-TEMPLATE """[INST] <<SYS>><</SYS>>
-
- [/INST]
+FROM ".data/finance-llm.Q2_K.gguf"
+PARAMETER stop "<|im_start|>"
+PARAMETER stop "<|im_end|>"
+TEMPLATE """
+<|im_start|>system
+<|im_end|>
+<|im_start|>user
+<|im_end|>
+<|im_start|>assistant
 """
-PARAMETER stop "[INST]"
-PARAMETER stop "[/INST]"
-PARAMETER stop "<<SYS>>"
-PARAMETER stop "<</SYS>>"
 
 # Set the temperature, high is more creative, lower is more coherent
 PARAMETER temperature 1
