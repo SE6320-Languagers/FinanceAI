@@ -1,0 +1,117 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "model-cache/microsoft/Phi-3-mini-4k-instruct",
+        "load_kwargs": {
+            "trust_remote_code": true
+        }
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "CUDAExecutionProvider"
+                    ]
+                }
+            ]
+        },
+        "target_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "CUDAExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "data_configs": [
+        {
+            "name": "dataset_default_train",
+            "type": "HuggingfaceContainer",
+            "user_script": "finetuning/qlora_user_script.py",
+            "load_dataset_config": {
+    "data_name": "json", 
+                "data_files": "dataset/dataset-classification.json",
+                "split": "train"
+            },
+            "pre_process_data_config": {
+                "dataset_type": "corpus",
+                "text_cols": [
+  "phrase",
+  "tone"
+],
+                "text_template": "<|user|>\n{phrase}<|end|>\n<|assistant|>\n{tone}<|end|>",
+                "corpus_strategy": "join",
+                "source_max_len": 1024,
+                "pad_to_max_len": false,
+                "use_attention_mask": false
+            }
+        }
+    ],
+    "passes": {
+        "qlora": {
+            "type": "QLoRA",
+            "compute_dtype": "bfloat16",
+            "quant_type": "nf4",
+            "double_quant": true,
+            "lora_r": 64,
+            "lora_alpha": 64,
+            "lora_dropout": 0.1,
+            "train_data_config": "dataset_default_train",
+            "training_args": {
+                "seed": 0,
+                "data_seed": 42,
+                "per_device_train_batch_size": 1,
+                "per_device_eval_batch_size": 1,
+                "gradient_accumulation_steps": 4,
+                "gradient_checkpointing": true,
+                "learning_rate": 0.0001,
+                "num_train_epochs":3,
+                "max_steps": 1200,
+                "logging_steps": 10,
+                "evaluation_strategy": "steps",
+                "eval_steps": 187,
+                "group_by_length": true,
+                "adam_beta2": 0.999,
+                "max_grad_norm": 0.3,
+                "output_dir": "models/checkpoints"
+            }
+        },
+        "OnnxConversion": {
+            "type": "OnnxConversion",
+            "target_opset": 17,
+            "torch_dtype": "float32",
+            "save_metadata_for_token_generation": true
+        },
+        "OrtTransformersOptimization": {
+            "type": "OrtTransformersOptimization",
+            "model_type": "gpt2",
+            "opt_level": 0,
+            "keep_io_types": false,
+            "float16": true
+        },
+        "ExtractAdapters": {
+            "type": "ExtractAdapters",
+            "make_inputs": true,
+            "pack_inputs": true
+        },
+        "ModelBuilder": {
+            "type": "ModelBuilder",
+            "metadata_only": true,
+            "precision": "fp16"
+        }
+    },
+    "log_severity_level": 0,
+    "search_strategy": false,
+    "evaluate_input_model": false,
+    "host": "local_system",
+    "target": "target_system",
+    "cache_dir": "cache",
+    "output_dir": "models/qlora"
+}
