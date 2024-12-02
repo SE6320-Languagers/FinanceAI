@@ -42,12 +42,18 @@ def resolve_coreferences(text: str) -> str:
 def analyze_sentiment(text: str) -> str:
     blob = TextBlob(text)
     sentiment_score = blob.sentiment.polarity
-    if sentiment_score > 0:
-        return "positive"
-    elif sentiment_score < 0:
-        return "negative"
+
+    # map sentiment polarity to emotions
+    if sentiment_score >= 0.6:
+        return "joy"  # Strong positive sentiment (joy)
+    elif 0.2 <= sentiment_score < 0.6:
+        return "curious"  # Mild positive sentiment (curiosity)
+    elif -0.2 <= sentiment_score < 0.2:
+        return "surprise"  # Neutral but surprising (unexpected, neutral reactions)
+    elif -0.6 <= sentiment_score < -0.2:
+        return "sadness"  # Negative but not too strong (worry)
     else:
-        return "neutral"
+        return "fear"  # Strong negative sentiment (disappointment)
 
 def retrieve_information(query: str) -> List[Dict]:
     json_file_path = get_json_file_path()
