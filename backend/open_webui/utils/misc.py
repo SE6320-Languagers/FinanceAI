@@ -9,6 +9,8 @@ import os
 import spacy
 from typing import List, Tuple
 import neuralcoref
+from textblob import TextBlob
+import json
 
 nlp = spacy.load("en_core_web_sm")
 neuralcoref.add_to_pipe(nlp)
@@ -36,6 +38,16 @@ def named_entity_recognition(text: str) -> List[tuple]:
 def resolve_coreferences(text: str) -> str:
     doc = nlp(text)
     return doc._.coref_resolved
+
+def analyze_sentiment(text: str) -> str:
+    blob = TextBlob(text)
+    sentiment_score = blob.sentiment.polarity
+    if sentiment_score > 0:
+        return "positive"
+    elif sentiment_score < 0:
+        return "negative"
+    else:
+        return "neutral"
 
 def get_messages_content(messages: list[dict], ) -> str:
     return "\n".join(
