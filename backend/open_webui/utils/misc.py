@@ -55,7 +55,36 @@ def retrieve_information(query: str) -> List[Dict]:
         data = json.load(f)
     retrieved_info = [entry for entry in data if query.lower() in entry.get('phrase', '').lower()]
     return retrieved_info
+
+def process_message_content(message: Dict) -> str:
+    json_file_path = get_json_file_path()
+    text = message.get('content', '')
     
+    # Tokenization
+    tokens = tokenize(text)
+    
+    # Lemmatization
+    lemmatized_tokens = lemmatize(text)
+    
+    # Named Entity Recognition (NER)
+    named_entities = named_entity_recognition(text)
+    
+    # Coreference Resolution
+    resolved_text = resolve_coreferences(text)
+    
+    # Sentiment Analysis
+    sentiment = analyze_sentiment(text)
+
+    # Information Retrieval
+    retrieved_info = retrieve_information(resolved_text)
+    retrieved_info_str = '\n'.join([f"Advice: {entry['advice']}" for entry in retrieved_info])
+
+    # Final user input after processing
+    processed_message = f"Resolved Text: {resolved_text}\nSentiment: {sentiment}\nNamed Entities: {named_entities}\n"
+    processed_message += f"Retrieved Info:\n{retrieved_info_str}\n"
+    
+    return processed_message
+
 def get_messages_content(messages: list[dict], ) -> str:
     return "\n".join(
         [
