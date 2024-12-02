@@ -6,13 +6,24 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Callable, Optional
 import os
+import spacy
+from typing import List
+
+nlp = spacy.load("en_core_web_sm")
 
 def get_json_file_path():
     json_file_path = os.path.join(os.path.dirname(__file__), '../../../../../training/dataset/dataset-classification.json')
     json_file_path = os.path.abspath(json_file_path)
     return json_file_path
 
-def get_messages_content(messages: list[dict]) -> str:
+def tokenize(text: str, remove_punctuation: bool = False) -> List[str]:
+    doc = nlp(text)
+    if remove_punctuation:
+        return [token.text for token in doc if not token.is_punct]
+    else:
+        return [token.text for token in doc]
+
+def get_messages_content(messages: list[dict], ) -> str:
     return "\n".join(
         [
             f"{message['role'].upper()}: {get_content_from_message(message)}"
