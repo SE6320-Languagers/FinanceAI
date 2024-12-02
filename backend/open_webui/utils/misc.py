@@ -23,6 +23,10 @@ def tokenize(text: str, remove_punctuation: bool = False) -> List[str]:
     else:
         return [token.text for token in doc]
 
+def lemmatize(text: str) -> List[str]:
+    doc = nlp(text)
+    return [token.lemma_ for token in doc if not token.is_stop]
+
 def get_messages_content(messages: list[dict], ) -> str:
     return "\n".join(
         [
