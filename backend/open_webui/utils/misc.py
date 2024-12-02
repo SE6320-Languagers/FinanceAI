@@ -59,6 +59,26 @@ def analyze_emotion(text: str) -> str:
 
     return emotion_mapping.get(predicted_emotion, "curious")
 
+def classify_category(text: str) -> str:    
+    categories = {
+        "savings": ["save", "saving", "budget", "cut back", "meal prep", "plan"],
+        "spending": ["spend", "spent", "purchase", "expense", "groceries", "shopping"],
+        "achievement": ["achieved", "success", "completed", "goal", "accomplish"],
+        "unexpected_loss": ["lost", "unexpected loss", "loss", "overspent", "debt", "theft", "accident"],
+        "unexpected_income": ["unexpected income", "extra", "bonus", "unexpected gain", "lottery", "win"],
+    }
+    
+    # Convert text to lowercase to improve matching
+    text_lower = text.lower()
+    
+    # Check which category contains keywords matching the input text
+    for category, keywords in categories.items():
+        if any(keyword in text_lower for keyword in keywords):
+            return category
+    
+    # If no category matches, return 'unknown'
+    return "unknown"
+
 def retrieve_information(query: str) -> List[Dict]:
     json_file_path = get_json_file_path()
     with open(json_file_path, 'r') as f:
@@ -85,8 +105,9 @@ def process_message_content(message: Dict) -> str:
     retrieved_info = retrieve_information(resolved_text)
     retrieved_info_str = '\n'.join([f"Advice: {entry['advice']}" for entry in retrieved_info])
 
+    category = classify_category(text)
     # Final user input after processing
-    processed_message = f"Resolved Text: {resolved_text}\nSentiment: {sentiment}\nNamed Entities: {named_entities}\n"
+    processed_message = f"Resolved Text: {resolved_text}\nSentiment: {sentiment}\nCategory: {category}\nNamed Entities: {named_entities}\n"
     processed_message += f"Retrieved Info:\n{retrieved_info_str}\n"
     
     return processed_message
