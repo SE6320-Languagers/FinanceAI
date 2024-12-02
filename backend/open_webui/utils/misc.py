@@ -5,7 +5,12 @@ import uuid
 from datetime import timedelta
 from pathlib import Path
 from typing import Callable, Optional
+import os
 
+def get_json_file_path():
+    json_file_path = os.path.join(os.path.dirname(__file__), '../../../../../training/dataset/dataset-classification.json')
+    json_file_path = os.path.abspath(json_file_path)
+    return json_file_path
 
 def get_messages_content(messages: list[dict]) -> str:
     return "\n".join(
