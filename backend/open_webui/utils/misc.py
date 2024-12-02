@@ -10,6 +10,7 @@ import spacy
 from typing import List, Tuple
 import neuralcoref
 from textblob import TextBlob
+from transformers import pipeline
 import json
 
 nlp = spacy.load("en_core_web_sm")
@@ -39,21 +40,24 @@ def resolve_coreferences(text: str) -> str:
     doc = nlp(text)
     return doc._.coref_resolved
 
-def analyze_sentiment(text: str) -> str:
-    blob = TextBlob(text)
-    sentiment_score = blob.sentiment.polarity
+def analyze_emotion(text: str) -> str:
+    emotion_classifier = pipeline("text-classification", model="j-hartmann/emotion-english-distilroberta-base")
+    result = emotion_classifier(text)
+    predicted_emotion = result[0]['label']
+    
+    # we mapped Hugging Face labels to desired emotion categories
+    emotion_mapping = {
+        "joy": "joy",
+        "anger": "fear",      
+        "fear": "fear",
+        "surprise": "surprise",
+        "sadness": "sadness",
+        "disgust": "sadness", 
+        "neutral": "curious", 
+        "anticipation": "curious",
+    }
 
-    # map sentiment polarity to emotions
-    if sentiment_score >= 0.6:
-        return "joy"  # Strong positive sentiment (joy)
-    elif 0.2 <= sentiment_score < 0.6:
-        return "curious"  # Mild positive sentiment (curiosity)
-    elif -0.2 <= sentiment_score < 0.2:
-        return "surprise"  # Neutral but surprising (unexpected, neutral reactions)
-    elif -0.6 <= sentiment_score < -0.2:
-        return "sadness"  # Negative but not too strong (worry)
-    else:
-        return "fear"  # Strong negative sentiment (disappointment)
+    return emotion_mapping.get(predicted_emotion, "curious")
 
 def retrieve_information(query: str) -> List[Dict]:
     json_file_path = get_json_file_path()
