@@ -49,6 +49,13 @@ def analyze_sentiment(text: str) -> str:
     else:
         return "neutral"
 
+def retrieve_information(query: str) -> List[Dict]:
+    json_file_path = get_json_file_path()
+    with open(json_file_path, 'r') as f:
+        data = json.load(f)
+    retrieved_info = [entry for entry in data if query.lower() in entry.get('phrase', '').lower()]
+    return retrieved_info
+    
 def get_messages_content(messages: list[dict], ) -> str:
     return "\n".join(
         [
