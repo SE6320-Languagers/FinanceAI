@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Callable, Optional
 import os
 import spacy
-from typing import List
+from typing import List, Tuple
 
 nlp = spacy.load("en_core_web_sm")
 
@@ -26,6 +26,10 @@ def tokenize(text: str, remove_punctuation: bool = False) -> List[str]:
 def lemmatize(text: str) -> List[str]:
     doc = nlp(text)
     return [token.lemma_ for token in doc if not token.is_stop]
+
+def named_entity_recognition(text: str) -> List[tuple]:
+    doc = nlp(text)
+    return [(ent.text, ent.label_) for ent in doc.ents]
 
 def get_messages_content(messages: list[dict], ) -> str:
     return "\n".join(
