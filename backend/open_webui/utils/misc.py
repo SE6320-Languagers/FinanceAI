@@ -60,19 +60,15 @@ def process_message_content(message: Dict) -> str:
     json_file_path = get_json_file_path()
     text = message.get('content', '')
     
-    # Tokenization
     tokens = tokenize(text)
     
-    # Lemmatization
     lemmatized_tokens = lemmatize(text)
     
-    # Named Entity Recognition (NER)
     named_entities = named_entity_recognition(text)
     
     # Coreference Resolution
     resolved_text = resolve_coreferences(text)
     
-    # Sentiment Analysis
     sentiment = analyze_sentiment(text)
 
     # Information Retrieval
@@ -85,14 +81,14 @@ def process_message_content(message: Dict) -> str:
     
     return processed_message
 
-def get_messages_content(messages: list[dict], ) -> str:
-    return "\n".join(
-        [
-            f"{message['role'].upper()}: {get_content_from_message(message)}"
-            for message in messages
-        ]
-    )
-
+def get_messages_content(messages: List[Dict]) -> str:
+    json_file_path = get_json_file_path()
+    messages_content = []
+    for message in messages:
+        role = message['role'].upper()
+        content = process_message_content(message, json_file_path)
+        messages_content.append(f"{role}: {content}")
+    return "\n".join(messages_content)
 
 def get_last_user_message_item(messages: list[dict]) -> Optional[dict]:
     for message in reversed(messages):
