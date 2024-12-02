@@ -8,8 +8,10 @@ from typing import Callable, Optional
 import os
 import spacy
 from typing import List, Tuple
+import neuralcoref
 
 nlp = spacy.load("en_core_web_sm")
+neuralcoref.add_to_pipe(nlp)
 
 def get_json_file_path():
     json_file_path = os.path.join(os.path.dirname(__file__), '../../../../../training/dataset/dataset-classification.json')
@@ -30,6 +32,10 @@ def lemmatize(text: str) -> List[str]:
 def named_entity_recognition(text: str) -> List[tuple]:
     doc = nlp(text)
     return [(ent.text, ent.label_) for ent in doc.ents]
+
+def resolve_coreferences(text: str) -> str:
+    doc = nlp(text)
+    return doc._.coref_resolved
 
 def get_messages_content(messages: list[dict], ) -> str:
     return "\n".join(
