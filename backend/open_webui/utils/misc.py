@@ -12,9 +12,14 @@ import neuralcoref
 from textblob import TextBlob
 from transformers import pipeline
 import json
+from transformers import BertTokenizer, BertForSequenceClassification
+import torch
 
 nlp = spacy.load("en_core_web_sm")
 neuralcoref.add_to_pipe(nlp)
+
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+model = BertForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=5)
 
 def get_json_file_path():
     json_file_path = os.path.join(os.path.dirname(__file__), '../../../../../training/dataset/dataset-classification.json')
@@ -60,24 +65,17 @@ def analyze_emotion(text: str) -> str:
     return emotion_mapping.get(predicted_emotion, "curious")
 
 def classify_category(text: str) -> str:    
-    categories = {
-        "savings": ["save", "saving", "budget", "cut back", "meal prep", "plan"],
-        "spending": ["spend", "spent", "purchase", "expense", "groceries", "shopping"],
-        "achievement": ["achieved", "success", "completed", "goal", "accomplish"],
-        "unexpected_loss": ["lost", "unexpected loss", "loss", "overspent", "debt", "theft", "accident"],
-        "unexpected_income": ["unexpected income", "extra", "bonus", "unexpected gain", "lottery", "win"],
-    }
+    categories = ["savings", "spending", "achievement", "unexpected_loss", "unexpected_income"]
+    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
     
-    # Convert text to lowercase to improve matching
-    text_lower = text.lower()
+    with torch.no_grad():
+        logits = model(**inputs).logits
     
-    # Check which category contains keywords matching the input text
-    for category, keywords in categories.items():
-        if any(keyword in text_lower for keyword in keywords):
-            return category
+    # predicted category = index with highest score
+    predicted_class_idx = torch.argmax(logits, dim=1).item()
+    predicted_category = categories[predicted_class_idx]
     
-    # If no category matches, return 'unknown'
-    return "unknown"
+    return predicted_category
 
 def retrieve_information(query: str) -> List[Dict]:
     json_file_path = get_json_file_path()
