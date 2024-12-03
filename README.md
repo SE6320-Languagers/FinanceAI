@@ -24,4 +24,5 @@ https://www.kaggle.com/datasets/sandhaya4u/august-bank-statement-sandhaya
 [Lending Club Loan Data (kaggle.com)](https://www.kaggle.com/datasets/adarshsng/lending-club-loan-data-csv)
 
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/EVKpHfh_HMg" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+[![Watch the video](https://img.youtube.com/vi/EVKpHfh_HMg/0.jpg)](https://www.youtube.com/watch?v=EVKpHfh_HMg)
+(Click the picture above to watch the video!! ^^)
