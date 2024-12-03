@@ -26,6 +26,69 @@ def get_json_file_path():
     json_file_path = os.path.abspath(json_file_path)
     return json_file_path
 
+def get_unique_tokens(text: str) -> Set[str]:
+    doc = nlp(text)
+    return set([token.pos_ for token in doc])
+
+def calculate_uni_and_bi_grams(text: str) -> Tuple[Dict[str, int], Dict[str, int]]:
+    doc = nlp(text)
+    tokens = [token.pos_ for token in doc]
+    
+    unigram = dict()
+    bigram = dict()
+    prev = ""
+
+    # Count each token
+    for token in tokens:
+        # If we've already counted add 1
+        if (token in unigram):
+            unigram[token] += 1
+        # Otherwise make a new entry
+        else:
+            unigram[token] = 1
+
+        # Bigram count
+        if (prev != ""):
+            # If we've already counted add 1
+            if (prev + " " + token in bigram):
+                bigram[prev + " " + token] += 1
+            # Otherwise make a new entry
+            else:
+                bigram[prev + " " + token] = 1
+        
+        # Update the previous token
+        prev = token
+        
+    return unigram, bigram
+
+def calculate_n_gram(text: str, n: int) -> Dict[str, int]:
+    doc = nlp(text)
+    tokens = [token.pos_ for token in doc]
+    
+    ngram = dict()
+    prev = []
+
+    # Count each token
+    for token in tokens:
+
+        # Bigram count
+        if (len(prev) == n-1):
+            substring = ' '.join(prev) + " " + token
+            # If we've already counted add 1
+            if (prev + " " + token in bigram):
+                bigram[substring] += 1
+            # Otherwise make a new entry
+            else:
+                bigram[substring] = 1
+
+            # Remove oldest token
+            prev.pop(0)
+        
+        # Update the previous token list
+        prev.append(token)
+        
+    return ngram
+
 def tokenize(text: str, remove_punctuation: bool = False) -> List[str]:
     doc = nlp(text)
     if remove_punctuation:
@@ -90,6 +153,8 @@ def process_message_content(message: Dict) -> str:
     text = message.get('content', '')
     
     tokens = tokenize(text)
+
+    unique_tokens = get_unique_tokens(text)
     
     lemmatized_tokens = lemmatize(text)
     
@@ -99,6 +164,10 @@ def process_message_content(message: Dict) -> str:
     resolved_text = resolve_coreferences(text)
     
     sentiment = analyze_sentiment(text)
+
+    unigram, bigram = calculate_uni_and_bi_grams(text)
+
+    trigram = calculate_n_gram(text, 3)
 
     # Information Retrieval
     retrieved_info = retrieve_information(resolved_text)
