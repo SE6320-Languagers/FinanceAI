@@ -60,12 +60,13 @@ def analyze_emotion(text: str) -> str:
         "disgust": "sadness", 
         "neutral": "curious", 
         "anticipation": "curious",
+        "fear": "worried",
     }
 
     return emotion_mapping.get(predicted_emotion, "curious")
 
 def classify_category(text: str) -> str:    
-    categories = ["savings", "spending", "achievement", "unexpected_loss", "unexpected_income"]
+    categories = ["savings", "spending", "achievement", "unexpected_loss", "unexpected_income", "debt", "personal finance"]
     inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
     
     with torch.no_grad():
